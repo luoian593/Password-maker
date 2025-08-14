@@ -146,4 +146,56 @@
 
       if (score >= 5) return { text: '强', class: 'strength-strong' };
       if (score >= 3) return { text: '中等', class: 'strength-medium' };
-      return {
+      return { text: '弱', class: 'strength-weak' };
+    }
+
+    function copyPassword(password = document.getElementById('password').value) {
+      if (password) {
+        navigator.clipboard.writeText(password)
+          .then(() => alert('密码已复制到剪贴板！'))
+          .catch(() => alert('复制失败，请手动复制！'));
+      }
+    }
+
+    function saveAndRenderHistory() {
+      try {
+        localStorage.setItem('passwordHistory', JSON.stringify(history));
+      } catch (e) {
+        alert('LocalStorage 容量已满，请清空历史记录！');
+        return;
+      }
+
+      const historyEl = document.getElementById('history');
+      historyEl.innerHTML = '';
+      history.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'history-item flex justify-between items-center p-2 border-b';
+        div.innerHTML = `
+          <div>
+            <p class="text-sm"><span class="font-medium">密码:</span> ${item.password}</p>
+            <p class="text-sm text-gray-600"><span class="font-medium">标签:</span> ${item.tag}</p>
+            <p class="text-sm text-gray-600"><span class="font-medium">时间:</span> ${item.time}</p>
+            <p class="text-sm ${item.strength === '强' ? 'strength-strong' : item.strength === '中等' ? 'strength-medium' : 'strength-weak'}">
+              <span class="font-medium">强度:</span> ${item.strength}
+            </p>
+          </div>
+          <button onclick="copyPassword('${item.password}')" 
+                  class="text-sm bg-gray-200 px-2 py-1 rounded hover:bg-gray-300">
+            复制
+          </button>
+        `;
+        historyEl.appendChild(div);
+      });
+    }
+
+    function clearHistory() {
+      if (confirm('确定清空历史记录吗？')) {
+        history = [];
+        saveAndRenderHistory();
+      }
+    }
+
+    saveAndRenderHistory();
+  </script>
+</body>
+</html>
