@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>密码生成器</title>
-  <!-- Tailwind CSS CDN -->
+  <title>Password Maker</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
@@ -27,21 +26,18 @@
 </head>
 <body>
   <div class="container bg-white shadow-lg rounded-lg p-6">
-    <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">密码生成器</h1>
+    <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Password Maker</h1>
     <form id="passwordForm" class="space-y-4">
-      <!-- 密码长度 -->
       <div>
         <label class="block text-sm font-medium text-gray-700">密码长度 (6-50)</label>
         <input type="number" id="length" min="6" max="50" value="12" 
                class="mt-1 w-full p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500">
       </div>
-      <!-- 标签 -->
       <div>
         <label class="block text-sm font-medium text-gray-700">标签 (如：微信、邮箱)</label>
         <input type="text" id="tag" placeholder="输入标签，可选" 
                class="mt-1 w-full p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500">
       </div>
-      <!-- 字符类型 -->
       <div class="space-y-2">
         <label class="block text-sm font-medium text-gray-700">包含字符</label>
         <label class="flex items-center">
@@ -61,13 +57,11 @@
           <span>特殊符号 (!@#$%^&*)</span>
         </label>
       </div>
-      <!-- 生成按钮 -->
       <button type="button" onclick="generatePassword()" 
               class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700">
         生成密码
       </button>
     </form>
-    <!-- 显示密码 -->
     <div class="mt-6">
       <label class="block text-sm font-medium text-gray-700">你的密码</label>
       <div class="flex items-center mt-1">
@@ -80,7 +74,6 @@
       </div>
       <p id="strength" class="mt-2 text-sm"></p>
     </div>
-    <!-- 历史记录 -->
     <div class="mt-8">
       <div class="flex justify-between items-center">
         <h2 class="text-lg font-medium text-gray-800">历史记录</h2>
@@ -94,7 +87,6 @@
   </div>
 
   <script>
-    // 从 LocalStorage 加载历史记录
     let history = JSON.parse(localStorage.getItem('passwordHistory')) || [];
 
     function generatePassword() {
@@ -105,7 +97,6 @@
       const numbers = document.getElementById('numbers').checked;
       const symbols = document.getElementById('symbols').checked;
 
-      // 校验
       if (!uppercase && !lowercase && !numbers && !symbols) {
         alert('请至少选择一种字符类型！');
         return;
@@ -115,7 +106,6 @@
         return;
       }
 
-      // 字符集
       const upperChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
       const lowerChars = 'abcdefghijklmnopqrstuvwxyz';
       const numberChars = '0123456789';
@@ -126,29 +116,24 @@
       if (numbers) chars += numberChars;
       if (symbols) chars += symbolChars;
 
-      // 生成密码
       let password = '';
       for (let i = 0; i < length; i++) {
         password += chars.charAt(Math.floor(Math.random() * chars.length));
       }
 
-      // 显示密码
       document.getElementById('password').value = password;
 
-      // 计算密码强度
       const strength = calculateStrength(password, uppercase, lowercase, numbers, symbols);
       const strengthEl = document.getElementById('strength');
       strengthEl.textContent = `密码强度: ${strength.text}`;
       strengthEl.className = `text-sm ${strength.class}`;
 
-      // 保存到历史
       history.unshift({
         password,
         tag: tag || '无标签',
         time: new Date().toLocaleString('zh-CN'),
         strength: strength.text
       });
-      // 无数量限制，直接保存
       saveAndRenderHistory();
     }
 
@@ -161,59 +146,4 @@
 
       if (score >= 5) return { text: '强', class: 'strength-strong' };
       if (score >= 3) return { text: '中等', class: 'strength-medium' };
-      return { text: '弱', class: 'strength-weak' };
-    }
-
-    function copyPassword(password = document.getElementById('password').value) {
-      if (password) {
-        navigator.clipboard.writeText(password)
-          .then(() => alert('密码已复制到剪贴板！'))
-          .catch(() => alert('复制失败，请手动复制！'));
-      }
-    }
-
-    function saveAndRenderHistory() {
-      // 保存到 LocalStorage
-      try {
-        localStorage.setItem('passwordHistory', JSON.stringify(history));
-      } catch (e) {
-        alert('LocalStorage 容量已满，请清空历史记录！');
-        return;
-      }
-
-      // 渲染历史记录
-      const historyEl = document.getElementById('history');
-      historyEl.innerHTML = '';
-      history.forEach((item, index) => {
-        const div = document.createElement('div');
-        div.className = 'history-item flex justify-between items-center p-2 border-b';
-        div.innerHTML = `
-          <div>
-            <p class="text-sm"><span class="font-medium">密码:</span> ${item.password}</p>
-            <p class="text-sm text-gray-600"><span class="font-medium">标签:</span> ${item.tag}</p>
-            <p class="text-sm text-gray-600"><span class="font-medium">时间:</span> ${item.time}</p>
-            <p class="text-sm ${item.strength === '强' ? 'strength-strong' : item.strength === '中等' ? 'strength-medium' : 'strength-weak'}">
-              <span class="font-medium">强度:</span> ${item.strength}
-            </p>
-          </div>
-          <button onclick="copyPassword('${item.password}')" 
-                  class="text-sm bg-gray-200 px-2 py-1 rounded hover:bg-gray-300">
-            复制
-          </button>
-        `;
-        historyEl.appendChild(div);
-      });
-    }
-
-    function clearHistory() {
-      if (confirm('确定清空历史记录吗？')) {
-        history = [];
-        saveAndRenderHistory();
-      }
-    }
-
-    // 页面加载时渲染历史记录
-    saveAndRenderHistory();
-  </script>
-</body>
-</html>
+      return {
