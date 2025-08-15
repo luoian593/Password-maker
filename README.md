@@ -41,7 +41,7 @@
 1. **克隆或下载仓库**：
    - 克隆本仓库到本地：
      ```bash
-     git clone https://github.com/your-username/password-maker.git
+     git clone https://github.com/luoian593/password-maker.git
      ```
    - 或者下载项目文件的 ZIP 包并解压。
 
